@@ -14,6 +14,15 @@ import { restart } from './plugins/restart';
 import { restartEnvFileChange } from './plugins/restartEnvFileChange';
 
 export default defineConfig({
+  // Server code (Hono bootstrap, Neon serverless client) uses top-level await,
+  // which the default esbuild browser target list does not support. Force a
+  // modern target so both client and SSR builds allow it.
+  build: {
+    target: 'esnext',
+  },
+  ssr: {
+    target: 'node',
+  },
   // Keep them available via import.meta.env.NEXT_PUBLIC_*
   envPrefix: 'NEXT_PUBLIC_',
   assetsInclude: ['**/*.md'],
