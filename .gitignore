@@ -1,0 +1,24 @@
+
+# Local SQLite database and uploaded videos
+/apps/web/data/
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# Misc
+.DS_Store
+*.log
+.bun/

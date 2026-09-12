@@ -1,0 +1,34 @@
+diff --git a/node_modules/react-native/index.js b/node_modules/react-native/index.js
+index a4b7d5e..78868bb 100644
+--- a/node_modules/react-native/index.js
++++ b/node_modules/react-native/index.js
+@@ -393,6 +393,9 @@ module.exports = {
+     return require('./src/private/components/virtualview/VirtualView')
+       .VirtualViewMode;
+   },
++  get Slider() {
++    return require('@react-native-community/slider').default;
++  },
+   // #endregion
+ } as ReactNativePublicAPI;
+ 
+@@ -458,19 +461,4 @@ if (__DEV__) {
+       );
+     },
+   });
+-  /* $FlowFixMe[prop-missing] This is intentional: Flow will error when
+-   * attempting to access Slider. */
+-  /* $FlowFixMe[invalid-export] This is intentional: Flow will error when
+-   * attempting to access Slider. */
+-  Object.defineProperty(module.exports, 'Slider', {
+-    configurable: true,
+-    get() {
+-      invariant(
+-        false,
+-        'Slider has been removed from react-native core. ' +
+-          "It can now be installed and imported from '@react-native-community/slider' instead of 'react-native'. " +
+-          'See https://github.com/callstack/react-native-slider',
+-      );
+-    },
+-  });
+ }
