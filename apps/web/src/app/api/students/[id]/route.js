@@ -1,5 +1,7 @@
-import getDb from "../../utils/db.js";
+import getDb, { VIDEO_DIR } from "../../utils/db.js";
 import argon2 from "argon2";
+import { unlink } from "node:fs/promises";
+import { join } from "node:path";
 
 // GET /api/students/[id]
 export async function GET(request, { params }) {
@@ -133,17 +135,14 @@ export async function DELETE(request, { params }) {
       return Response.json({ error: "Student not found" }, { status: 404 });
     }
 
-    // Get all sessions and videos to delete files
-    const { VIDEO_DIR } = await import("@/app/api/utils/db");
+    // Remove each session's videos (files + rows), then the sessions themselves
     const sessions = db.prepare("SELECT id FROM sessions WHERE student_id = ?").all(studentId);
     for (const sess of sessions) {
       const videos = db.prepare("SELECT filename FROM videos WHERE session_id = ?").all(sess.id);
       for (const v of videos) {
         try {
-          const { unlink } = await import("node:fs/promises");
-          const { join } = await import("node:path");
           await unlink(join(VIDEO_DIR, v.filename));
-        } catch { /* file may not exist */ }
+        } catch { /* file already gone — ignore */ }
       }
       db.prepare("DELETE FROM comments WHERE video_id IN (SELECT id FROM videos WHERE session_id = ?)").run(sess.id);
       db.prepare("DELETE FROM videos WHERE session_id = ?").run(sess.id);

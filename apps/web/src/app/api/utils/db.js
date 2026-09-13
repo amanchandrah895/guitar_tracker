@@ -3,21 +3,30 @@ import { mkdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 // DATA_DIR: set via env for Render (e.g. /data), defaults to apps/web/data/
+//
+// IMPORTANT: everything at module scope here must be pure path computation
+// with NO filesystem access. Render mounts persistent disks only at runtime,
+// never during the build, so creating directories at import time makes
+// `react-router build` fail with ENOENT while /data does not yet exist.
+// All real I/O is deferred to ensureDirs(), called on first database use.
 const DATA_DIR = process.env.DATA_DIR
   ? resolve(process.env.DATA_DIR)
   : resolve(process.cwd(), "data");
 
-mkdirSync(DATA_DIR, { recursive: true });
-
 const VIDEO_DIR = join(DATA_DIR, "videos");
-mkdirSync(VIDEO_DIR, { recursive: true });
-
 const DB_PATH = join(DATA_DIR, "guitar_tracker.db");
 
 let _db = null;
 
+/** Create the data directories. Safe to call repeatedly; runs on first use. */
+function ensureDirs() {
+  mkdirSync(DATA_DIR, { recursive: true });
+  mkdirSync(VIDEO_DIR, { recursive: true });
+}
+
 function getDb() {
   if (!_db) {
+    ensureDirs();
     _db = new DatabaseSync(DB_PATH);
     _db.exec("PRAGMA journal_mode = WAL");
     _db.exec("PRAGMA foreign_keys = ON");
@@ -85,5 +94,5 @@ function initSchema(db) {
   `);
 }
 
-export { getDb, DATA_DIR, VIDEO_DIR };
+export { getDb, ensureDirs, DATA_DIR, VIDEO_DIR };
 export default getDb;
