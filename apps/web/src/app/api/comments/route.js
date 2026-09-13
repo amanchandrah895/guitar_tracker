@@ -1,4 +1,4 @@
-import getDb from "@/app/api/utils/db";
+import getDb from "../utils/db.js";
 
 // GET /api/comments?videoId=X — get all comments for a video
 export async function GET(request) {

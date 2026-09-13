@@ -1,5 +1,5 @@
-import getDb from "@/app/api/utils/db";
-import { VIDEO_DIR } from "@/app/api/utils/db";
+import getDb from "../utils/db.js";
+import { VIDEO_DIR } from "../utils/db.js";
 import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";

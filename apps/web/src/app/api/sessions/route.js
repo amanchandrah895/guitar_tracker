@@ -1,4 +1,4 @@
-import getDb from "@/app/api/utils/db";
+import getDb from "../utils/db.js";
 
 // GET /api/sessions — all sessions (admin)
 export async function GET() {

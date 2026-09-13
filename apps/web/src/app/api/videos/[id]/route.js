@@ -1,5 +1,5 @@
-import getDb from "@/app/api/utils/db";
-import { VIDEO_DIR } from "@/app/api/utils/db";
+import getDb from "../../utils/db.js";
+import { VIDEO_DIR } from "../../utils/db.js";
 import { readFile, unlink } from "node:fs/promises";
 import { join, extname } from "node:path";
 

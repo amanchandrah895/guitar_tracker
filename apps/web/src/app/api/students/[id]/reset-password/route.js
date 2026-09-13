@@ -1,4 +1,4 @@
-import getDb from "@/app/api/utils/db";
+import getDb from "../../../utils/db.js";
 import argon2 from "argon2";
 
 /** Fuzzy-normalize: lowercase, trim, collapse internal whitespace */

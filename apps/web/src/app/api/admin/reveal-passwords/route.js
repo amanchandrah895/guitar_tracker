@@ -1,4 +1,4 @@
-import getDb from "@/app/api/utils/db";
+import getDb from "../../utils/db.js";
 
 // POST /api/admin/reveal-passwords — returns all students with their plain passwords
 // Protected by admin password
