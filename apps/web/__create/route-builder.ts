@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +10,16 @@ const API_BASENAME = '/api';
 const api = new Hono();
 
 // Get current directory
-const __dirname = join(fileURLToPath(new URL('.', import.meta.url)), '../src/app/api');
+// In dev, this file runs unbundled from __create/, so a path relative to
+// import.meta.url correctly resolves to ../src/app/api. In production Vite
+// bundles this file into build/server/assets/, which breaks that relative
+// path (it would resolve inside build/server/ instead of the real project
+// root). Fall back to process.cwd() — the server always starts from the
+// project root (apps/web) — when the import.meta.url-based path doesn't
+// actually exist on disk.
+const devPath = join(fileURLToPath(new URL('.', import.meta.url)), '../src/app/api');
+const prodPath = join(process.cwd(), 'src/app/api');
+const __dirname = existsSync(devPath) ? devPath : prodPath;
 if (globalThis.fetch) {
   globalThis.fetch = updatedFetch;
 }
