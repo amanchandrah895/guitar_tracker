@@ -67,7 +67,9 @@ function Hero({ students, sessions, stats, onJoin, onInstructor }) {
         <div className="min-w-0 lg:col-span-7">
           <motion.div {...fade(0)} className="inline-flex items-center gap-2 rounded-full border border-line-strong bg-white/[0.03] py-1.5 pl-2 pr-3.5 text-[12.5px] font-medium text-ink-2 backdrop-blur">
             <span className="live-dot h-2 w-2 rounded-full bg-emerald-400" />
-            Student practice portal · CVPA, RV University
+            <span>
+              <span className="font-semibold text-ink-1">Strumrr</span> · Guitar practice journal<span className="hidden sm:inline"> for CVPA, RV University</span>
+            </span>
           </motion.div>
           <motion.h1 {...fade(0.08)} className="font-display mt-6 text-[46px] font-extrabold leading-[0.95] text-ink-1 sm:text-[68px] lg:text-[84px]">
             Play daily.

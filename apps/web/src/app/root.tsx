@@ -36,12 +36,6 @@ import '../__create/design-mode';
 import type { Route } from './+types/root';
 
 // Brand favicon: the amber guitar-pick logo mark, inlined so it works in every environment.
-const FAVICON =
-  'data:image/svg+xml,' +
-  encodeURIComponent(
-    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#ffd98a'/><stop offset='.55' stop-color='#f5b63f'/><stop offset='1' stop-color='#d9622b'/></linearGradient></defs><path d='M12 1.6c-5.6 0-10 3.1-10 7.7 0 4.9 5 10.4 8.6 12.9a2.4 2.4 0 0 0 2.8 0c3.6-2.5 8.6-8 8.6-12.9 0-4.6-4.4-7.7-10-7.7Z' fill='url(#g)'/><g transform='translate(6.48 5.04) scale(.46)' fill='none' stroke='#1a1206' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='m20 7 1.7-1.7a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0L17 4v3Z'/><path d='m17 7-5.1 5.1'/><path d='M6 12a2 2 0 0 0 1.8-1.2l.4-.9C8.7 8.8 9.8 8 11 8c2.8 0 5 2.2 5 5 0 1.2-.8 2.3-1.9 2.8l-.9.4A2 2 0 0 0 12 18a4 4 0 0 1-4 4c-3.3 0-6-2.7-6-6a4 4 0 0 1 4-4'/><path d='m6 16 2 2'/></g></svg>"
-  );
-
 export const links = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
@@ -51,11 +45,48 @@ export const links = () => [
   },
 ];
 
-export const meta = () => [
-  { title: 'Guitar Practice Logs' },
-  { name: 'description', content: 'Play daily · Log your practice · Improve — student practice portal.' },
-  { name: 'theme-color', content: '#0b0a08' },
-];
+// Public address of the site, for absolute links in share previews (WhatsApp,
+// iMessage, etc. need a full URL for the image). Render sets
+// RENDER_EXTERNAL_URL automatically; PUBLIC_URL overrides it (custom domain).
+export const loader = ({ request }: { request: Request }) => {
+  const env = typeof process !== 'undefined' ? process.env : ({} as Record<string, string | undefined>);
+  let origin = env.PUBLIC_URL || env.RENDER_EXTERNAL_URL || '';
+  if (!origin) {
+    const url = new URL(request.url);
+    const proto = request.headers.get('x-forwarded-proto') || url.protocol.replace(':', '');
+    const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || url.host;
+    origin = `${proto}://${host}`;
+  }
+  return { origin: origin.replace(/\/$/, '') };
+};
+
+const TITLE = 'Strumrr · Guitar practice journal';
+const DESCRIPTION =
+  'Play daily, log your practice and get feedback from your instructor. The guitar practice journal for CVPA, RV University.';
+
+export const meta = ({ data }: { data?: { origin?: string } }) => {
+  const origin = data?.origin || '';
+  return [
+    { title: TITLE },
+    { name: 'description', content: DESCRIPTION },
+    { name: 'application-name', content: 'Strumrr' },
+    { name: 'apple-mobile-web-app-title', content: 'Strumrr' },
+    { name: 'theme-color', content: '#0b0a08' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Strumrr' },
+    { property: 'og:title', content: TITLE },
+    { property: 'og:description', content: DESCRIPTION },
+    ...(origin ? [{ property: 'og:url', content: `${origin}/` }] : []),
+    { property: 'og:image', content: `${origin}/og.png` },
+    { property: 'og:image:width', content: '1200' },
+    { property: 'og:image:height', content: '630' },
+    { property: 'og:image:alt', content: 'Strumrr: Play daily. Log it. Improve.' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: TITLE },
+    { name: 'twitter:description', content: DESCRIPTION },
+    { name: 'twitter:image', content: `${origin}/og.png` },
+  ];
+};
 
 if (globalThis.window && globalThis.window !== undefined) {
   globalThis.window.fetch = fetch;
@@ -463,7 +494,9 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
         {/* Dev-only overlay: in production /src/* isn't served (returns HTML → MIME error). */}
         {import.meta.env.DEV ? <script type="module" src="/src/__create/dev-error-overlay.js"></script> : null}
-        <link rel="icon" type="image/svg+xml" href={FAVICON} />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
         {LoadFontsSSR ? <LoadFontsSSR /> : null}
       </head>
       <body>

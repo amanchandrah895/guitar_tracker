@@ -42,7 +42,7 @@ export function PublicNav({ onJoin, onInstructor }) {
   ];
   return (
     <Bar>
-      <a href="#top" className="shrink-0 rounded-xl" aria-label="Guitar Practice Logs home">
+      <a href="#top" className="shrink-0 rounded-xl" aria-label="Strumrr home">
         <span className="hidden sm:block"><Wordmark /></span>
         <span className="sm:hidden"><Wordmark compact /></span>
       </a>
@@ -186,13 +186,13 @@ export function DevCredit({ className, compact = false }) {
 export function Footer() {
   const { limits } = useSettings();
   return (
-    <footer className="mt-auto border-t border-line bg-[#090806]/80">
+    <footer className="relative mt-auto overflow-hidden border-t border-line bg-[#090806]/80">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-[1.1fr_1fr] lg:grid-cols-[1.2fr_0.9fr_1fr]">
           <div className="max-w-sm">
             <Wordmark />
             <p className="mt-4 text-sm leading-relaxed text-ink-3">
-              Play daily · Log your practice · Improve. A practice journal for the guitar students of CVPA, RV University.
+              <span className="font-semibold text-ink-2">Strumrr</span> is the practice journal for the guitar students of CVPA, RV University. Play daily, log your practice, improve.
             </p>
             <p className="mt-3 text-[13px] font-semibold text-gold-2">Made for better earning</p>
           </div>
@@ -227,10 +227,14 @@ export function Footer() {
             </span>
           </p>
           <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-ink-4">© {new Date().getFullYear()} Guitar Practice Logs</p>
+            <p className="text-ink-4">© {new Date().getFullYear()} Strumrr</p>
             <DevCredit compact />
           </div>
         </div>
+      </div>
+      {/* Oversized wordmark bleeding off the bottom edge: a quiet brand sign-off. */}
+      <div aria-hidden="true" className="pointer-events-none -mb-[0.2em] select-none px-4 text-center leading-none sm:px-6 lg:px-8">
+        <span className="wordmark footer-wordmark block text-[23vw] sm:text-[19vw] xl:text-[240px]">Strumrr</span>
       </div>
     </footer>
   );

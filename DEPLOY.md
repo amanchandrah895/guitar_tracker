@@ -1,4 +1,4 @@
-# Deploying Guitar Practice Logs on Render (free)
+# Deploying Strumrr on Render (free)
 
 Everything that must survive restarts lives outside Render:
 
@@ -33,6 +33,12 @@ The first build takes a few minutes. When it's live, open
 
 Free services sleep after 15 minutes idle. In UptimeRobot, add an HTTP monitor
 for `https://<your-service>.onrender.com/api/health` every 5 minutes.
+
+## Custom domain (optional)
+
+After adding your domain under the service's Settings → Custom Domains, add
+`PUBLIC_URL=https://your-domain` under Environment so link previews
+(WhatsApp, iMessage) use it.
 
 ## Local development
 

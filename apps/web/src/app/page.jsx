@@ -8,7 +8,7 @@ import { HomePage } from "@/components/gpl/home";
 import { StudentDashboard } from "@/components/gpl/student";
 import { AdminDashboard } from "@/components/gpl/admin";
 import { CreateProfileWizard, LoginModal, PublicProfileModal, ResetPasswordModal, StudentSheet } from "@/components/gpl/auth";
-import { Button, LogoMark } from "@/components/gpl/ui";
+import { BrandName, Button, LogoMark } from "@/components/gpl/ui";
 import { Page } from "@/components/gpl/shell";
 import { DEVELOPER, SettingsProvider } from "@/components/gpl/settings";
 
@@ -195,6 +195,7 @@ function Splash() {
         <motion.div animate={{ scale: [1, 1.06, 1] }} transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}>
           <LogoMark size={64} />
         </motion.div>
+        <BrandName className="text-[44px] text-ink-1" />
         <div className="flex h-6 items-end gap-1" aria-hidden="true">
           {[0, 1, 2, 3, 4].map((i) => (
             <motion.span
@@ -205,7 +206,7 @@ function Splash() {
             />
           ))}
         </div>
-        <p className="font-display text-lg font-semibold text-ink-2" role="status">Tuning up…</p>
+        <p className="text-[15px] font-medium text-ink-3" role="status">Tuning up…</p>
         <p className="absolute bottom-8 text-[12.5px] text-ink-3">
           Crafted by <span className="font-semibold text-gold-2">{DEVELOPER.name}</span>
         </p>

@@ -11,6 +11,14 @@ export const DEFAULT_SETTINGS = {
   limits: { videosPerStudent: 2, maxUploadMB: 100, maxMinutes: 10 },
 };
 
+// Brand. "Strumrr" is the product name; the descriptor explains it to newcomers.
+export const BRAND = {
+  name: "Strumrr",
+  descriptor: "Guitar practice journal",
+  school: "CVPA · RV University",
+  tagline: "Play daily · Log your practice · Improve",
+};
+
 // Developer credit shown across the app.
 export const DEVELOPER = {
   name: "Aman",

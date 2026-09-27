@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, useIsPresent, useReducedMotion } from "motion/react";
-import { Eye, EyeOff, Guitar, Loader2, Lock, X } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, X } from "lucide-react";
 import { initials, levelColor } from "./lib";
 
 export const cx = (...c) => c.filter(Boolean).join(" ");
@@ -24,37 +24,57 @@ export function useMediaQuery(query) {
 }
 
 // ─── Brand ───────────────────────────────────────────────────
-export function LogoMark({ size = 34 }) {
+/**
+ * Strumrr mark: a guitar pick with three strings, the middle one mid-strum.
+ * String weights step up like a real set (thin → thick).
+ */
+export function LogoMark({ size = 34, className }) {
   // Unique per instance: a shared id breaks when the first copy sits in a
   // display:none subtree (e.g. the desktop logo hidden on phones).
-  const gid = `gpl-pick-${useId().replace(/:/g, "")}`;
+  const gid = `strumrr-pick-${useId().replace(/:/g, "")}`;
   return (
-    <span className="relative inline-grid place-items-center" style={{ width: size, height: size }}>
-      <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
-        <defs>
-          <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#ffd98a" />
-            <stop offset="55%" stopColor="#f5b63f" />
-            <stop offset="100%" stopColor="#d9622b" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M12 1.6c-5.6 0-10 3.1-10 7.7 0 4.9 5 10.4 8.6 12.9a2.4 2.4 0 0 0 2.8 0c3.6-2.5 8.6-8 8.6-12.9 0-4.6-4.4-7.7-10-7.7Z"
-          fill={`url(#${gid})`}
-        />
-      </svg>
-      <Guitar className="absolute text-[#1a1206]" style={{ width: size * 0.46, height: size * 0.46, marginTop: -size * 0.06 }} strokeWidth={2.4} />
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" className={cx("shrink-0", className)}>
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#ffd98a" />
+          <stop offset="55%" stopColor="#f5b63f" />
+          <stop offset="100%" stopColor="#d9622b" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M12 1.6c-5.6 0-10 3.1-10 7.7 0 4.9 5 10.4 8.6 12.9a2.4 2.4 0 0 0 2.8 0c3.6-2.5 8.6-8 8.6-12.9 0-4.6-4.4-7.7-10-7.7Z"
+        fill={`url(#${gid})`}
+      />
+      <g fill="none" stroke="#1a1206" strokeLinecap="round">
+        <path d="M5.6 6.9h12.8" strokeWidth="1.5" />
+        <path d="M5 10.3c1.1-1.5 2.2-1.5 3.3 0s2.2 1.5 3.3 0 2.2-1.5 3.3 0 2.2 1.5 3.3 0" strokeWidth="1.8" />
+        <path d="M6.8 13.8h10.4" strokeWidth="2.1" />
+      </g>
+    </svg>
+  );
+}
+
+/** The name set as a wordmark: "Strum" in ink, the ringing "rr" in amber. */
+export function BrandName({ className }) {
+  return (
+    <span className={cx("wordmark", className)}>
+      Strum<span className="text-amber-grad">rr</span>
     </span>
   );
 }
 
-export function Wordmark({ compact = false }) {
+export function Wordmark({ compact = false, size = "md" }) {
+  const big = size === "lg";
   return (
     <span className="flex items-center gap-2.5">
-      <LogoMark size={compact ? 30 : 34} />
+      <LogoMark size={big ? 52 : compact ? 30 : 34} />
       <span className="leading-none">
-        <span className="font-display block text-[17px] font-bold text-ink-1">Guitar Practice Logs</span>
-        {!compact && <span className="mt-1 block text-[10.5px] font-medium tracking-[0.14em] text-ink-3 uppercase">CVPA · RV University</span>}
+        <BrandName className={cx("block text-ink-1", big ? "text-[40px]" : "text-[23px]")} />
+        {!compact && (
+          <span className={cx("block font-semibold uppercase text-ink-3", big ? "mt-2 text-[12px] tracking-[0.18em]" : "mt-[3px] text-[9.5px] tracking-[0.16em]")}>
+            Guitar practice · CVPA
+          </span>
+        )}
       </span>
     </span>
   );
