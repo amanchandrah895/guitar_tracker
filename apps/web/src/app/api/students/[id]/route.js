@@ -1,15 +1,14 @@
-import getDb, { VIDEO_DIR } from "../../utils/db.js";
+import getDb from "../../utils/db.js";
+import { deleteVideoMedia } from "../../utils/storage.js";
 import argon2 from "argon2";
-import { unlink } from "node:fs/promises";
-import { join } from "node:path";
 
 // GET /api/students/[id]
 export async function GET(request, { params }) {
   try {
-    const db = getDb();
+    const db = await getDb();
     const { id } = params;
 
-    const student = db
+    const student = await db
       .prepare(
         `SELECT
           s.id, s.name, s.security_question, s.security_answer, s.songs, s.created_at,
@@ -38,15 +37,15 @@ export async function GET(request, { params }) {
 // PATCH /api/students/[id] — update songs or password
 export async function PATCH(request, { params }) {
   try {
-    const db = getDb();
+    const db = await getDb();
     const { id } = params;
     const body = await request.json();
 
     if (body.is_public !== undefined) {
-      db.prepare("UPDATE students SET is_public = ? WHERE id = ?").run(body.is_public ? 1 : 0, id);
+      await db.prepare("UPDATE students SET is_public = ? WHERE id = ?").run(body.is_public ? 1 : 0, id);
     }
     if (body.songs !== undefined) {
-      db.prepare("UPDATE students SET songs = ? WHERE id = ?").run(
+      await db.prepare("UPDATE students SET songs = ? WHERE id = ?").run(
         JSON.stringify(body.songs),
         id
       );
@@ -54,10 +53,10 @@ export async function PATCH(request, { params }) {
 
     if (body.newPassword) {
       const hashed = await argon2.hash(body.newPassword);
-      db.prepare("UPDATE students SET password = ?, plain_password = ? WHERE id = ?").run(hashed, body.newPassword, id);
+      await db.prepare("UPDATE students SET password = ?, plain_password = ? WHERE id = ?").run(hashed, body.newPassword, id);
     }
 
-    const student = db
+    const student = await db
       .prepare("SELECT id, name, songs FROM students WHERE id = ?")
       .get(id);
 
@@ -75,11 +74,11 @@ export async function PATCH(request, { params }) {
 // POST /api/students/[id] — verify password or security answer
 export async function POST(request, { params }) {
   try {
-    const db = getDb();
+    const db = await getDb();
     const { id } = params;
     const { password, securityAnswer } = await request.json();
 
-    const student = db
+    const student = await db
       .prepare("SELECT id, name, password, security_question, security_answer, songs, created_at FROM students WHERE id = ?")
       .get(id);
 
@@ -126,29 +125,27 @@ export async function POST(request, { params }) {
 // DELETE /api/students/[id] — remove student and all their data
 export async function DELETE(request, { params }) {
   try {
-    const db = getDb();
+    const db = await getDb();
     const { id } = params;
     const studentId = Number(id);
 
-    const student = db.prepare("SELECT id FROM students WHERE id = ?").get(studentId);
+    const student = await db.prepare("SELECT id FROM students WHERE id = ?").get(studentId);
     if (!student) {
       return Response.json({ error: "Student not found" }, { status: 404 });
     }
 
     // Remove each session's videos (files + rows), then the sessions themselves
-    const sessions = db.prepare("SELECT id FROM sessions WHERE student_id = ?").all(studentId);
+    const sessions = await db.prepare("SELECT id FROM sessions WHERE student_id = ?").all(studentId);
     for (const sess of sessions) {
-      const videos = db.prepare("SELECT filename FROM videos WHERE session_id = ?").all(sess.id);
+      const videos = await db.prepare("SELECT filename, storage, removed_at FROM videos WHERE session_id = ?").all(sess.id);
       for (const v of videos) {
-        try {
-          await unlink(join(VIDEO_DIR, v.filename));
-        } catch { /* file already gone — ignore */ }
+        if (!v.removed_at) await deleteVideoMedia(v);
       }
-      db.prepare("DELETE FROM comments WHERE video_id IN (SELECT id FROM videos WHERE session_id = ?)").run(sess.id);
-      db.prepare("DELETE FROM videos WHERE session_id = ?").run(sess.id);
+      await db.prepare("DELETE FROM comments WHERE video_id IN (SELECT id FROM videos WHERE session_id = ?)").run(sess.id);
+      await db.prepare("DELETE FROM videos WHERE session_id = ?").run(sess.id);
     }
-    db.prepare("DELETE FROM sessions WHERE student_id = ?").run(studentId);
-    db.prepare("DELETE FROM students WHERE id = ?").run(studentId);
+    await db.prepare("DELETE FROM sessions WHERE student_id = ?").run(studentId);
+    await db.prepare("DELETE FROM students WHERE id = ?").run(studentId);
 
     return Response.json({ success: true });
   } catch (error) {

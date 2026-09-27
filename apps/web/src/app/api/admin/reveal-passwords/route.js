@@ -14,8 +14,8 @@ export async function POST(request) {
       return Response.json({ error: "Incorrect admin password" }, { status: 401 });
     }
 
-    const db = getDb();
-    const students = db
+    const db = await getDb();
+    const students = await db
       .prepare("SELECT id, name, plain_password FROM students ORDER BY name ASC")
       .all();
 

@@ -1,6 +1,7 @@
 import getDb from "../../utils/db.js";
 import { VIDEO_DIR } from "../../utils/db.js";
-import { readFile, unlink } from "node:fs/promises";
+import { deleteVideoMedia } from "../../utils/storage.js";
+import { readFile } from "node:fs/promises";
 import { join, extname } from "node:path";
 
 const MIME_MAP = {
@@ -16,11 +17,21 @@ const MIME_MAP = {
 // GET /api/videos/[id] — stream / serve video file
 export async function GET(request, { params }) {
   try {
-    const db    = getDb();
-    const video = db.prepare("SELECT * FROM videos WHERE id = ?").get(params.id);
+    const db    = await getDb();
+    const video = await db.prepare("SELECT * FROM videos WHERE id = ?").get(params.id);
 
     if (!video) {
       return Response.json({ error: "Video not found" }, { status: 404 });
+    }
+    if (video.removed_at) {
+      return Response.json(
+        { error: "This clip was removed automatically to save storage. Feedback on it is kept." },
+        { status: 410 }
+      );
+    }
+    // Cloud-hosted clip: let the browser stream it straight from Cloudinary's CDN.
+    if (video.storage === "cloudinary" && video.url) {
+      return new Response(null, { status: 302, headers: { Location: video.url, "Cache-Control": "private, max-age=300" } });
     }
 
     const filepath = join(VIDEO_DIR, video.filename);
@@ -65,21 +76,19 @@ export async function GET(request, { params }) {
 // DELETE /api/videos/[id]
 export async function DELETE(request, { params }) {
   try {
-    const db    = getDb();
-    const video = db.prepare("SELECT * FROM videos WHERE id = ?").get(params.id);
+    const db    = await getDb();
+    const video = await db.prepare("SELECT * FROM videos WHERE id = ?").get(params.id);
 
     if (!video) {
       return Response.json({ error: "Video not found" }, { status: 404 });
     }
 
     // Remove comments first
-    db.prepare("DELETE FROM comments WHERE video_id = ?").run(params.id);
-    db.prepare("DELETE FROM videos WHERE id = ?").run(params.id);
+    await db.prepare("DELETE FROM comments WHERE video_id = ?").run(params.id);
+    await db.prepare("DELETE FROM videos WHERE id = ?").run(params.id);
 
-    // Remove file (best-effort)
-    try {
-      await unlink(join(VIDEO_DIR, video.filename));
-    } catch {}
+    // Remove the media (best-effort)
+    await deleteVideoMedia(video);
 
     return Response.json({ ok: true });
   } catch (error) {

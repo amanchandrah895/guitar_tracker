@@ -10,8 +10,8 @@ export async function GET(request) {
       return Response.json({ error: "videoId required" }, { status: 400 });
     }
 
-    const db = getDb();
-    const comments = db
+    const db = await getDb();
+    const comments = await db
       .prepare(
         "SELECT id, video_id, text, created_at FROM comments WHERE video_id = ? ORDER BY created_at ASC"
       )
@@ -33,19 +33,19 @@ export async function POST(request) {
       return Response.json({ error: "videoId and text are required" }, { status: 400 });
     }
 
-    const db = getDb();
+    const db = await getDb();
 
     // Verify video exists
-    const video = db.prepare("SELECT id FROM videos WHERE id = ?").get(videoId);
+    const video = await db.prepare("SELECT id FROM videos WHERE id = ?").get(videoId);
     if (!video) {
       return Response.json({ error: "Video not found" }, { status: 404 });
     }
 
-    const result = db
+    const result = await db
       .prepare("INSERT INTO comments (video_id, text) VALUES (?, ?)")
       .run(videoId, text.trim());
 
-    const comment = db
+    const comment = await db
       .prepare("SELECT id, video_id, text, created_at FROM comments WHERE id = ?")
       .get(result.lastInsertRowid);
 
@@ -66,8 +66,8 @@ export async function DELETE(request) {
       return Response.json({ error: "id required" }, { status: 400 });
     }
 
-    const db = getDb();
-    db.prepare("DELETE FROM comments WHERE id = ?").run(id);
+    const db = await getDb();
+    await db.prepare("DELETE FROM comments WHERE id = ?").run(id);
 
     return Response.json({ ok: true });
   } catch (error) {

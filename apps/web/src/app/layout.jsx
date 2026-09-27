@@ -2,6 +2,9 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+// Document <html>/<head>/<body>, fonts and meta tags live in root.tsx.
+// This layout only provides app-wide client context. (It previously rendered
+// its own <html> inside root.tsx's <body>, which is invalid DOM nesting.)
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -14,30 +17,5 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <head>
-        <title>Practice Tracker</title>
-        <meta
-          name="description"
-          content="Track your guitar journey, one session at a time"
-        />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="font-inter">
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      </body>
-    </html>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }

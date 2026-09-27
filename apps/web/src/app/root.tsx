@@ -35,7 +35,27 @@ import { useDevServerHeartbeat } from '../__create/useDevServerHeartbeat';
 import '../__create/design-mode';
 import type { Route } from './+types/root';
 
-export const links = () => [];
+// Brand favicon: the amber guitar-pick logo mark, inlined so it works in every environment.
+const FAVICON =
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#ffd98a'/><stop offset='.55' stop-color='#f5b63f'/><stop offset='1' stop-color='#d9622b'/></linearGradient></defs><path d='M12 1.6c-5.6 0-10 3.1-10 7.7 0 4.9 5 10.4 8.6 12.9a2.4 2.4 0 0 0 2.8 0c3.6-2.5 8.6-8 8.6-12.9 0-4.6-4.4-7.7-10-7.7Z' fill='url(#g)'/><g transform='translate(6.48 5.04) scale(.46)' fill='none' stroke='#1a1206' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='m20 7 1.7-1.7a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0L17 4v3Z'/><path d='m17 7-5.1 5.1'/><path d='M6 12a2 2 0 0 0 1.8-1.2l.4-.9C8.7 8.8 9.8 8 11 8c2.8 0 5 2.2 5 5 0 1.2-.8 2.3-1.9 2.8l-.9.4A2 2 0 0 0 12 18a4 4 0 0 1-4 4c-3.3 0-6-2.7-6-6a4 4 0 0 1 4-4'/><path d='m6 16 2 2'/></g></svg>"
+  );
+
+export const links = () => [
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+  { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+  {
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap',
+  },
+];
+
+export const meta = () => [
+  { title: 'Guitar Practice Logs' },
+  { name: 'description', content: 'Play daily · Log your practice · Improve — student practice portal.' },
+  { name: 'theme-color', content: '#0b0a08' },
+];
 
 if (globalThis.window && globalThis.window !== undefined) {
   globalThis.window.fetch = fetch;
@@ -441,13 +461,25 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        <script type="module" src="/src/__create/dev-error-overlay.js"></script>
-        <link rel="icon" href="/src/__create/favicon.png" />
+        {/* Dev-only overlay: in production /src/* isn't served (returns HTML → MIME error). */}
+        {import.meta.env.DEV ? <script type="module" src="/src/__create/dev-error-overlay.js"></script> : null}
+        <link rel="icon" type="image/svg+xml" href={FAVICON} />
         {LoadFontsSSR ? <LoadFontsSSR /> : null}
       </head>
       <body>
         <ClientOnly loader={() => children} />
-        <Toaster position={isMobile ? 'top-center' : 'bottom-right'} />
+        <Toaster
+          theme="dark"
+          position={isMobile ? 'top-center' : 'bottom-right'}
+          toastOptions={{
+            style: {
+              background: 'rgba(26, 23, 19, 0.96)',
+              border: '1px solid rgba(255, 236, 205, 0.12)',
+              color: '#f6efe4',
+              borderRadius: '14px',
+            },
+          }}
+        />
         <ScrollRestoration />
         <Scripts />
         <link rel="preconnect" href="https://ka-p.fontawesome.com" crossOrigin="anonymous" />

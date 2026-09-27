@@ -10,6 +10,6 @@ NullishQueryFunction.transaction = () => {
     'No database connection string was provided to `neon()`. Perhaps process.env.DATABASE_URL has not been set'
   );
 };
-const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : NullishQueryFunction;
+const sql = /^postgres(ql)?:\/\//.test(process.env.DATABASE_URL || "") ? neon(process.env.DATABASE_URL) : NullishQueryFunction;
 
 export default sql;

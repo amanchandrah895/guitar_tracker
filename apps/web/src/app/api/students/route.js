@@ -4,8 +4,8 @@ import argon2 from "argon2";
 // GET /api/students — all students with stats + last session songs
 export async function GET() {
   try {
-    const db = getDb();
-    const rows = db
+    const db = await getDb();
+    const rows = await db
       .prepare(
         `SELECT
           s.id, s.name, s.security_question, s.level, s.is_public, s.songs, s.created_at,
@@ -19,7 +19,7 @@ export async function GET() {
       .all();
 
     // Fetch each student's most recent session songs
-    const latestSongs = db
+    const latestSongs = await db
       .prepare(
         `SELECT student_id, songs
          FROM sessions
@@ -61,9 +61,9 @@ export async function POST(request) {
       return Response.json({ error: "Invalid student data — all fields required, select at least 1 song" }, { status: 400 });
     }
 
-    const db = getDb();
+    const db = await getDb();
 
-    const existing = db
+    const existing = await db
       .prepare("SELECT id FROM students WHERE LOWER(name) = LOWER(?)")
       .get(name);
     if (existing) {
@@ -77,14 +77,14 @@ export async function POST(request) {
     // Store normalized answer for consistent fuzzy matching
     const normalizedAnswer = securityAnswer.toLowerCase().trim().replace(/\s+/g, " ");
 
-    const result = db
+    const result = await db
       .prepare(
         `INSERT INTO students (name, password, plain_password, security_question, security_answer, level, is_public, songs)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(name, hashed, password, securityQuestion, normalizedAnswer, level || null, is_public === false ? 0 : 1, JSON.stringify(songs));
 
-    const student = db
+    const student = await db
       .prepare("SELECT id, name, security_question, level, songs, created_at FROM students WHERE id = ?")
       .get(result.lastInsertRowid);
 

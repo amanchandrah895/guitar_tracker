@@ -1,0 +1,31 @@
+# Render Blueprint — New + > Blueprint > pick this repo.
+# Data lives in Turso (database) and Cloudinary (videos), so the free web
+# service's temporary disk is fine: nothing is lost on restarts or redeploys.
+services:
+  - type: web
+    name: guitar-practice-logs
+    runtime: node
+    plan: free
+    region: singapore          # closest Render region to Turso aws-ap-south-1 (Mumbai)
+    rootDir: apps/web
+    # Bun installs exactly what bun.lock pins (plain npm install hits peer-dependency conflicts).
+    buildCommand: npx --yes bun@1.3 install --frozen-lockfile && npx --yes bun@1.3 run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Secrets: Render asks for these when you create the Blueprint.
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

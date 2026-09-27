@@ -3,8 +3,8 @@ import getDb from "../utils/db.js";
 // GET /api/sessions — all sessions (admin)
 export async function GET() {
   try {
-    const db = getDb();
-    const rows = db
+    const db = await getDb();
+    const rows = await db
       .prepare(
         `SELECT s.id, s.student_id, s.songs, s.minutes, s.notes, s.created_at,
                 st.name AS student_name
@@ -32,7 +32,7 @@ export async function POST(request) {
       return Response.json({ error: "Invalid session data" }, { status: 400 });
     }
 
-    const db = getDb();
+    const db = await getDb();
 
     let createdAt = null;
     if (practiceDate || practiceTime) {
@@ -42,20 +42,20 @@ export async function POST(request) {
     }
 
     const result = createdAt
-      ? db
+      ? await db
           .prepare(
             `INSERT INTO sessions (student_id, songs, minutes, notes, created_at)
              VALUES (?, ?, ?, ?, ?)`
           )
           .run(studentId, JSON.stringify(songs), minutes, notes || null, createdAt)
-      : db
+      : await db
           .prepare(
             `INSERT INTO sessions (student_id, songs, minutes, notes)
              VALUES (?, ?, ?, ?)`
           )
           .run(studentId, JSON.stringify(songs), minutes, notes || null);
 
-    const session = db
+    const session = await db
       .prepare("SELECT id, student_id, songs, minutes, notes, created_at FROM sessions WHERE id = ?")
       .get(result.lastInsertRowid);
 

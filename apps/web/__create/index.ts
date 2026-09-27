@@ -35,8 +35,11 @@ for (const method of ['log', 'info', 'warn', 'error', 'debug'] as const) {
   };
 }
 
+// The auth adapter is Postgres-only. The app's own data lives in Turso/SQLite
+// (see src/app/api/utils/db.js), so ignore a non-Postgres DATABASE_URL here.
+const pgUrl = /^postgres(ql)?:\/\//.test(process.env.DATABASE_URL || '') ? process.env.DATABASE_URL : undefined;
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: pgUrl,
 });
 const adapter = NeonAdapter(pool);
 

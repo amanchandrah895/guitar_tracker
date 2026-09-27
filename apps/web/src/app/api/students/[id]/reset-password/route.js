@@ -9,7 +9,7 @@ function fuzzyNormalize(s) {
 // POST /api/students/[id]/reset-password
 export async function POST(request, { params }) {
   try {
-    const db = getDb();
+    const db = await getDb();
     const { id } = params;
     const { securityAnswer, newPassword } = await request.json();
 
@@ -20,7 +20,7 @@ export async function POST(request, { params }) {
       return Response.json({ error: "Password must be at least 4 characters" }, { status: 400 });
     }
 
-    const student = db
+    const student = await db
       .prepare("SELECT id, security_answer FROM students WHERE id = ?")
       .get(Number(id));
 
@@ -36,7 +36,7 @@ export async function POST(request, { params }) {
     }
 
     const hashed = await argon2.hash(newPassword);
-    db.prepare("UPDATE students SET password = ?, plain_password = ? WHERE id = ?").run(hashed, newPassword, Number(id));
+    await db.prepare("UPDATE students SET password = ?, plain_password = ? WHERE id = ?").run(hashed, newPassword, Number(id));
 
     return Response.json({ success: true });
   } catch (err) {

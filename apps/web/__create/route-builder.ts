@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Hono } from 'hono';
 import type { Handler } from 'hono/types';
-import updatedFetch from '../src/__create/fetch';
 
 const API_BASENAME = '/api';
 const api = new Hono();
@@ -20,7 +19,14 @@ const api = new Hono();
 const devPath = join(fileURLToPath(new URL('.', import.meta.url)), '../src/app/api');
 const prodPath = join(process.cwd(), 'src/app/api');
 const __dirname = existsSync(devPath) ? devPath : prodPath;
+// Loaded lazily on purpose. root.tsx imports this module too; with a static
+// import here Rollup inlines it into the server entry chunk, so the production
+// server-build.js imports back from the entry while the entry is still
+// suspended on `await createHonoServer()` → `import(server-build)`. That
+// top-level-await cycle deadlocks and `node build/server/index.js` exits with
+// "unsettled top-level await". A dynamic import breaks the cycle.
 if (globalThis.fetch) {
+  const { default: updatedFetch } = await import('../src/__create/fetch');
   globalThis.fetch = updatedFetch;
 }
 

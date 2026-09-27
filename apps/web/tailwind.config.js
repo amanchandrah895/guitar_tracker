@@ -5,6 +5,15 @@ module.exports = {
 			sans: ['Inter', 'sans-serif'],
 		},
 		extend: {
+			// "Amber Stage" design tokens (see src/app/global.css)
+			colors: {
+				stage: { 0: '#0b0a08', 1: '#12100d', 2: '#1a1713', 3: '#24201a' },
+				ink: { 1: '#f6efe4', 2: '#bdb2a2', 3: '#958a79', 4: '#766c5d' },
+				gold: { 1: '#ffd98a', 2: '#f5b63f', 3: '#e8912c' },
+				ember: '#d9622b',
+				line: 'rgba(255, 236, 205, 0.08)',
+				'line-strong': 'rgba(255, 236, 205, 0.14)',
+			},
 			fontFamily: {
 				'a-bee-zee': 'A Bee Zee',
 				'ad-la-m-display': 'Ad La M Display',
