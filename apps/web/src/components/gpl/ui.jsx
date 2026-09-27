@@ -215,7 +215,7 @@ export function Chip({ selected, onClick, children, icon: Icon, className, as = 
     <Comp
       {...(as === "span" ? {} : { whileTap: { scale: 0.95 }, type: "button", onClick, "aria-pressed": selected })}
       className={cx(
-        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors duration-200",
+        "inline-flex max-w-full items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors duration-200",
         selected
           ? "border-gold-2/60 bg-gold-2/15 text-gold-1"
           : "border-line-strong bg-white/[0.03] text-ink-2 hover:border-white/20 hover:text-ink-1",
@@ -223,8 +223,8 @@ export function Chip({ selected, onClick, children, icon: Icon, className, as = 
       )}
       {...props}
     >
-      {Icon && <Icon className="h-3.5 w-3.5" />}
-      {children}
+      {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
+      {typeof children === "string" ? <span className="min-w-0 truncate" title={children}>{children}</span> : children}
     </Comp>
   );
 }
@@ -237,7 +237,7 @@ export function SongTag({ children, muted }) {
         muted ? "border-line text-ink-3" : "border-gold-2/25 bg-gold-2/[0.08] text-gold-1"
       )}
     >
-      <span className="truncate">{children}</span>
+      <span className="truncate" title={typeof children === "string" ? children : undefined}>{children}</span>
     </span>
   );
 }

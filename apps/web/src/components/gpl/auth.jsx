@@ -139,7 +139,7 @@ export function PublicProfileModal({ student, onClose }) {
               <p className="mb-3 text-[13px] font-semibold text-ink-1">Practice calendar</p>
               <Heatmap sessions={sessions} />
             </div>
-            <div className="rounded-2xl border border-line bg-black/20 p-4 lg:col-span-2">
+            <div className="min-w-0 rounded-2xl border border-line bg-black/20 p-4 lg:col-span-2">
               <p className="mb-3 text-[13px] font-semibold text-ink-1">Most played</p>
               {songs.length === 0 ? (
                 <p className="text-sm text-ink-3">No songs logged yet.</p>
@@ -157,7 +157,7 @@ export function PublicProfileModal({ student, onClose }) {
           </div>
           <div className="mt-6">
             <p className="mb-3 text-[15px] font-semibold text-ink-1">Practice history</p>
-            <SessionTimeline sessions={sessions} variant="public" pageSize={4} />
+            <SessionTimeline sessions={sessions} studentName={student.name} variant="public" pageSize={4} />
           </div>
         </>
       )}

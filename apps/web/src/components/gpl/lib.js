@@ -281,6 +281,20 @@ export function uploadWithProgress(url, formData, onProgress) {
   });
 }
 
+/**
+ * Short, readable name for a practice clip, e.g. "Priya · 27 Sep, 6:40 PM".
+ * Used instead of phone file names like "VID_20260927_183455_…mp4", which
+ * are long, meaningless and break narrow layouts.
+ */
+export function clipLabel(name, uploadedAt) {
+  const who = name ? firstName(name) : "Practice clip";
+  const at = parseDbDate(uploadedAt, { utc: true });
+  if (!at) return who;
+  const day = `${at.getDate()} ${at.toLocaleDateString("en-US", { month: "short" })}`;
+  const time = at.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return `${who} · ${day}, ${time}`;
+}
+
 export function formatBytes(bytes = 0) {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;

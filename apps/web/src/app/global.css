@@ -160,6 +160,9 @@
       0 20px 50px -30px rgba(0, 0, 0, 0.8);
   }
   .panel {
+    /* Panels sit in grids; without this a long unbroken word (a file name, a
+       song title) widens the grid track and pushes the page off-screen. */
+    min-width: 0;
     background: linear-gradient(180deg, rgba(27, 24, 19, 0.9), rgba(17, 15, 12, 0.9));
     border: 1px solid var(--line);
     border-radius: var(--radius-card);

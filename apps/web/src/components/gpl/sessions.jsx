@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArchiveX, ChevronDown, Crown, Film, MessageSquareText, Music, Send, StickyNote, Timer, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { api, formatDate, formatMinutes, formatTime, parseDbDate, timeAgo } from "./lib";
+import { api, clipLabel, formatDate, formatMinutes, formatTime, parseDbDate, timeAgo } from "./lib";
 import { possessive, useInstructorName, useSettings } from "./settings";
 import { Button, EmptyState, IconButton, Segmented, SongTag, cx } from "./ui";
 
@@ -18,7 +18,7 @@ const FILTERS = [
  * Month-grouped practice timeline.
  * variant: "student" (own dashboard) | "public" (read-only) | "admin" (can comment)
  */
-export function SessionTimeline({ sessions, variant = "student", pageSize = 6, onChanged, showFilters = true, emptyAction }) {
+export function SessionTimeline({ sessions, studentName, variant = "student", pageSize = 6, onChanged, showFilters = true, emptyAction }) {
   const [filter, setFilter] = useState("all");
   const [limit, setLimit] = useState(pageSize);
 
@@ -73,7 +73,7 @@ export function SessionTimeline({ sessions, variant = "student", pageSize = 6, o
               <p className="eyebrow sticky top-16 z-10 -mx-1 mb-3 bg-gradient-to-b from-[#16130f] to-transparent px-1 py-1 sm:top-[72px]">{g.label}</p>
               <ol className="space-y-3">
                 {g.items.map((s) => (
-                  <SessionItem key={s.id} session={s} variant={variant} onChanged={onChanged} />
+                  <SessionItem key={s.id} session={s} studentName={studentName} variant={variant} onChanged={onChanged} />
                 ))}
               </ol>
             </div>
@@ -91,7 +91,7 @@ export function SessionTimeline({ sessions, variant = "student", pageSize = 6, o
   );
 }
 
-export function SessionItem({ session, variant, onChanged }) {
+export function SessionItem({ session, studentName, variant, onChanged }) {
   const at = session.at || parseDbDate(session.created_at);
   const liveClips = (session.videos || []).filter((v) => !v.removed).length;
   return (
@@ -124,13 +124,13 @@ export function SessionItem({ session, variant, onChanged }) {
         </div>
       </div>
       {session.videos?.map((v) => (
-        <VideoBlock key={v.id} video={v} canComment={variant === "admin"} onChanged={onChanged} />
+        <VideoBlock key={v.id} video={v} studentName={studentName} canComment={variant === "admin"} onChanged={onChanged} />
       ))}
     </motion.li>
   );
 }
 
-function VideoBlock({ video, canComment, onChanged }) {
+function VideoBlock({ video, studentName, canComment, onChanged }) {
   const instructor = useInstructorName();
   const { limits } = useSettings();
   const removed = !!video.removed;
@@ -185,7 +185,7 @@ function VideoBlock({ video, canComment, onChanged }) {
       <div className={cx("space-y-3 p-3.5", removed && !comments.length && "hidden")}>
         {!removed && (
           <p className="flex items-center gap-1.5 truncate text-[12px] text-ink-3">
-            <Film className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{video.original_name || video.filename}</span>
+            <Film className="h-3.5 w-3.5 shrink-0" /> <span className="min-w-0 truncate">{clipLabel(studentName, video.uploaded_at)}</span>
           </p>
         )}
         <AnimatePresence initial={false}>
@@ -226,7 +226,8 @@ function VideoBlock({ video, canComment, onChanged }) {
                   add();
                 }
               }}
-              placeholder="Write feedback… (Enter to send)"
+              placeholder="Write feedback…"
+              aria-label="Write feedback. Press Enter to send"
               className="max-h-32 min-h-[44px] flex-1 resize-none rounded-2xl border border-line-strong bg-black/30 px-4 py-2.5 text-[14px] text-ink-1 placeholder:text-ink-4 focus:border-gold-2/70"
             />
             <Button size="md" icon={Send} loading={sending} disabled={!text.trim()} onClick={add} className={cx("h-[44px] px-4")} aria-label="Send feedback" />

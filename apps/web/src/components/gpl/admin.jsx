@@ -28,7 +28,7 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
-import { LEVELS, api, buildStudentStats, firstName, formatMinutes, levelColor, parseDbDate, songCounts, startOfDay, addDays, timeAgo } from "./lib";
+import { LEVELS, api, clipLabel, buildStudentStats, firstName, formatMinutes, levelColor, parseDbDate, songCounts, startOfDay, addDays, timeAgo } from "./lib";
 import { Heatmap, MinutesBars } from "./charts";
 import { SessionTimeline } from "./sessions";
 import { MiniStat } from "./auth";
@@ -210,14 +210,13 @@ function Overview({ students, sessions, stats, queue, onReview }) {
                 {queue.slice(0, 5).map((v) => {
                   const st = byId.get(v.student_id);
                   if (!st) return null;
-                  const at = parseDbDate(v.uploaded_at, { utc: true });
                   return (
                     <li key={v.id}>
                       <button type="button" onClick={() => onReview(st)} className="group flex w-full items-center gap-3 rounded-2xl border border-line bg-white/[0.02] p-3 text-left transition-colors hover:border-gold-2/30 hover:bg-gold-2/[0.04]">
                         <Avatar name={st.name} level={st.level} size={38} />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-[13.5px] font-semibold text-ink-1">{st.name}</span>
-                          <span className="block truncate text-[12px] text-ink-3">{v.original_name || "Practice clip"} · {at ? timeAgo(at) : ""}</span>
+                          <span className="block truncate text-[12px] text-ink-3">{clipLabel(st.name, v.uploaded_at)}</span>
                         </span>
                         <ChevronRight className="h-4 w-4 text-ink-3 group-hover:text-gold-1" />
                       </button>
@@ -663,14 +662,14 @@ function ReviewStudentModal({ student, onClose, onChanged }) {
               <p className="mb-3 text-[13px] font-semibold text-ink-1">Practice calendar</p>
               <Heatmap sessions={sessions} />
             </div>
-            <div className="rounded-2xl border border-line bg-black/20 p-4 lg:col-span-2">
+            <div className="min-w-0 rounded-2xl border border-line bg-black/20 p-4 lg:col-span-2">
               <p className="mb-3 text-[13px] font-semibold text-ink-1">Songs</p>
               <div className="flex flex-wrap gap-1.5">
                 {(student.songs || []).map((song) => {
                   const c = songs.find((x) => x.song === song)?.count || 0;
                   return (
-                    <span key={song} className="inline-flex items-center gap-1.5 rounded-full border border-line-strong px-2.5 py-1 text-[12.5px] text-ink-2">
-                      {song}<span className="text-ink-3 tnum">{c}×</span>
+                    <span key={song} title={song} className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line-strong px-2.5 py-1 text-[12.5px] text-ink-2">
+                      <span className="min-w-0 truncate">{song}</span><span className="shrink-0 text-ink-3 tnum">{c}×</span>
                     </span>
                   );
                 })}
@@ -681,6 +680,7 @@ function ReviewStudentModal({ student, onClose, onChanged }) {
             <p className="mb-3 text-[15px] font-semibold text-ink-1">Sessions & clips</p>
             <SessionTimeline
               sessions={sessions}
+              studentName={student.name}
               variant="admin"
               pageSize={5}
               onChanged={() => {

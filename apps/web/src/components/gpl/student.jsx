@@ -33,6 +33,7 @@ import {
   addDays,
   api,
   buildStudentStats,
+  clipLabel,
   firstName,
   formatBytes,
   formatDate,
@@ -224,7 +225,7 @@ export function StudentDashboard({ student, onLogout, reloadAll }) {
           {sessions === null ? (
             <div className="space-y-3"><Skeleton className="h-24" /><Skeleton className="h-24" /><Skeleton className="h-24" /></div>
           ) : (
-            <SessionTimeline sessions={sessions} variant="student" onChanged={refresh} emptyAction={<Button icon={Plus} onClick={() => setModal("log")}>Log your first session</Button>} />
+            <SessionTimeline sessions={sessions} studentName={student.name} variant="student" onChanged={refresh} emptyAction={<Button icon={Plus} onClick={() => setModal("log")}>Log your first session</Button>} />
           )}
         </section>
 
@@ -766,7 +767,7 @@ function ReplaceClipModal({ toRemove, limit, instructorName, onCancel, onConfirm
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13.5px] font-semibold text-ink-1">{at ? formatDate(at, { weekday: "short", month: "short", day: "numeric" }) : "Earlier clip"}</p>
                 <p className="truncate text-[12px] text-ink-3">
-                  {(c.session?.songs || []).join(", ") || c.original_name}
+                  {(c.session?.songs || []).join(", ") || clipLabel(null, c.uploaded_at)}
                   {notes ? ` · ${notes} note${notes > 1 ? "s" : ""} from ${instructorName} (kept)` : ""}
                 </p>
               </div>
@@ -822,9 +823,9 @@ function ManageSongsModal({ student, onClose, onSaved }) {
       <ModalHeader id="songs-title" icon={Music} title="Your songs" subtitle="These appear when you log a session." onClose={onClose} />
       <div className="flex flex-wrap gap-2">
         {list.map((s) => (
-          <span key={s} className="inline-flex items-center gap-1 rounded-full border border-gold-2/40 bg-gold-2/[0.1] py-1 pl-3.5 pr-1 text-[13px] font-medium text-gold-1">
-            {s}
-            <button type="button" onClick={() => remove(s)} disabled={busy} aria-label={`Remove ${s}`} className="grid h-6 w-6 place-items-center rounded-full text-gold-1/70 hover:bg-black/20 hover:text-ink-1">
+          <span key={s} title={s} className="inline-flex max-w-full items-center gap-1 rounded-full border border-gold-2/40 bg-gold-2/[0.1] py-1 pl-3.5 pr-1 text-[13px] font-medium text-gold-1">
+            <span className="min-w-0 truncate">{s}</span>
+            <button type="button" onClick={() => remove(s)} disabled={busy} aria-label={`Remove ${s}`} className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-gold-1/70 hover:bg-black/20 hover:text-ink-1">
               <X className="h-3.5 w-3.5" />
             </button>
           </span>
