@@ -3,7 +3,7 @@
 # service's temporary disk is fine: nothing is lost on restarts or redeploys.
 services:
   - type: web
-    name: guitar-practice-logs
+    name: strumrr
     runtime: node
     plan: free
     region: singapore          # closest Render region to Turso aws-ap-south-1 (Mumbai)
